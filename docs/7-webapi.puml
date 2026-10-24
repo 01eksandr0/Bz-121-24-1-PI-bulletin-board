@@ -1,0 +1,99 @@
+@startuml
+skinparam defaultFontName DejaVu Sans
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+title WebAPI (PL): діаграма класів
+
+package Controllers {
+  class AdsController {
+    + Search(query) : ActionResult<List<AdResponse>>
+    + GetById(id, userId?) : ActionResult<AdResponse>
+    + GetMine(userId) : ActionResult<List<AdResponse>>
+    + Create(userId, request) : ActionResult<AdResponse>
+    + Update(id, userId, request) : ActionResult<AdResponse>
+    + Deactivate(id, userId) : IActionResult
+    + Activate(id, userId) : IActionResult
+    + Delete(id, userId) : IActionResult
+  }
+  class UsersController {
+    + Get(email) : ActionResult<List<UserResponse>>
+    + GetById(id) : ActionResult<UserResponse>
+    + Register(request) : ActionResult<UserResponse>
+  }
+  class CategoriesController {
+    + GetTree() : ActionResult<List<CategoryResponse>>
+    + Create(userId, request) : ActionResult<CategoryResponse>
+  }
+  class TagsController {
+    + GetAll() : ActionResult<List<TagResponse>>
+    + Create(userId, request) : ActionResult<TagResponse>
+  }
+}
+package "Models.Requests" {
+  class AdRequest {
+    + Title : string
+    + Description : string
+    + Price : decimal?
+    + CategoryId : int?
+    + TagIds : List<int>
+  }
+  class AdSearchQuery
+  class RegisterUserRequest
+  class CreateCategoryRequest
+  class CreateTagRequest
+}
+package "Models.Responses" {
+  class AdResponse {
+    + Author : ReferenceResponse
+    + Category : ReferenceResponse
+    + Tags : IReadOnlyList<string>
+  }
+  class ReferenceResponse {
+    + Id : int
+    + Name : string
+  }
+  class UserResponse
+  class CategoryResponse
+  class TagResponse
+}
+package Mapping {
+  class ApiMapper <<static>> {
+    + ToResponse(model)
+    + ToInput(AdRequest) : AdInputModel
+    + ToFilter(AdSearchQuery) : AdSearchFilter
+  }
+}
+package Filters {
+  class BusinessExceptionFilter {
+    + OnException(context)
+  }
+  class RequireUserAttribute {
+    + OnActionExecuting(context)
+  }
+}
+together {
+class ControllerBase <<ASP.NET Core>>
+}
+interface IExceptionFilter <<ASP.NET Core>>
+class ActionFilterAttribute <<ASP.NET Core>>
+interface IAdService <<BLL>>
+interface IUserService <<BLL>>
+interface ICategoryService <<BLL>>
+interface ITagService <<BLL>>
+
+ControllerBase <|-- AdsController
+ControllerBase <|-- UsersController
+ControllerBase <|-- CategoriesController
+ControllerBase <|-- TagsController
+IExceptionFilter <|.. BusinessExceptionFilter
+ActionFilterAttribute <|-- RequireUserAttribute
+AdsController --> IAdService
+UsersController --> IUserService
+CategoriesController --> ICategoryService
+TagsController --> ITagService
+Controllers ..> ApiMapper
+ApiMapper ..> "Models.Requests"
+ApiMapper ..> "Models.Responses"
+AdResponse *-- ReferenceResponse
+@enduml

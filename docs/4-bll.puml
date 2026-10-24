@@ -8,16 +8,17 @@ title BLL: бізнес-логіка
 package Interfaces {
   interface IUserService {
   + Register(name, email) : UserModel
+  + GetById(id) : UserModel
   + GetByEmail(email) : UserModel
   + GetAll() : IReadOnlyList<UserModel>
 }
   interface ICategoryService {
   + GetTree() : IReadOnlyList<CategoryModel>
-  + Create(name, parentId) : CategoryModel
+  + Create(userId, name, parentId) : CategoryModel
 }
   interface ITagService {
   + GetAll() : IReadOnlyList<TagModel>
-  + Create(name) : TagModel
+  + Create(userId, name) : TagModel
 }
   interface IAdService {
     + Create(authorId, input) : AdModel
@@ -63,6 +64,9 @@ package Mapping {
 }
 }
 package Internal {
+  class UserGuard <<static>> {
+    + EnsureRegistered(uow, userId)
+  }
   class CategoryHierarchy {
   + GetLevel(id)
   + GetChildren(parentId)
@@ -87,6 +91,7 @@ TagService --> IUnitOfWork
 AdService --> IUnitOfWork
 CategoryService ..> CategoryHierarchy
 AdService ..> CategoryHierarchy
+Services ..> UserGuard
 Services ..> ModelMapper
 ModelMapper ..> Models
 BusinessException <|-- NotFoundException

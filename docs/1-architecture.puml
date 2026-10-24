@@ -4,27 +4,37 @@ skinparam shadowing false
 skinparam classAttributeIconSize 0
 skinparam packageStyle rectangle
 skinparam componentStyle rectangle
-title Загальна архітектура рішення BulletinBoard
+title Загальна архітектура рішення BulletinBoard (лаб. 2.4)
 
-package "Рівень представлення (UI)" #ECEFF1 {
-  [BulletinBoard.ConsoleUI] as UI
-  [WinForms / WPF / Web UI\n(можливе розширення)] as UI2 #white
+actor "Postman / браузер /\nбудь-який UI" as Client
+package "Рівень представлення (PL)" #ECEFF1 {
+  [BulletinBoard.WebAPI\nконтролери, моделі PL, фільтри] as API
+  [BulletinBoard.ConsoleUI\n(з лаб. 2.2)] as CON
+}
+package "Інфраструктура (DI)" #FFF8E1 {
+  [BulletinBoard.Infrastructure\nAutofac: DataAccessModule,\nBusinessLogicModule] as INF
 }
 package "Рівень бізнес-логіки (BLL)" #F3E5F5 {
   [BulletinBoard.BLL\nсервіси, моделі, mapping] as BLL
 }
 package "Рівень доступу до даних (DAL)" #E3F2FD {
   [BulletinBoard.DAL.Abstractions\nсутності, IRepository<T>, IUnitOfWork] as ABS
-  [BulletinBoard.DAL.EF\nEF Core Code First, SQLite] as EF
-  [DAL.Json / DAL.Mongo\n(можливе розширення)] as OTHER #white
+  [BulletinBoard.DAL.EF\nEF Core Code First] as EF
+}
+package "Тести" #E8F5E9 {
+  [BulletinBoard.BLL.Tests\nxUnit, UoW у пам'яті] as TST
 }
 database "board.db\n(SQLite)" as DB
 
-UI --> BLL : IUserService, IAdService ...\nмоделі BLL
-UI2 ..> BLL
-BLL --> ABS : IUnitOfWork\nсутності DAL
+Client --> API : HTTP + JSON
+API --> BLL : I*Service, моделі BLL
+API ..> INF : реєстрація модулів\n(Program.cs)
+INF ..> BLL : реєструє сервіси
+INF ..> EF : реєструє IUnitOfWork
+CON --> BLL
+BLL --> ABS : IUnitOfWork
 EF ..|> ABS : реалізує
-OTHER ..|> ABS : реалізує
 EF --> DB
-UI ..> EF : тільки Program.cs\n(точка збирання)
+TST --> BLL
+TST ..> ABS : InMemoryUnitOfWork
 @enduml

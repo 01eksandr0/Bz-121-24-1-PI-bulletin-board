@@ -1,0 +1,41 @@
+@startuml
+skinparam defaultFontName DejaVu Sans
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+title Infrastructure: впровадження залежностей (Autofac)
+
+class Module <<Autofac>> {
+  # Load(builder : ContainerBuilder)
+}
+class DataAccessModule {
+  - _connectionString : string
+  # Load(builder)
+}
+class BusinessLogicModule {
+  # Load(builder)
+}
+class "Program.cs (WebAPI)" as P <<top-level>>
+class AutofacServiceProviderFactory <<Autofac>>
+interface IUnitOfWork
+class EfUnitOfWork
+class BoardContext
+class "DbContextOptions<BoardContext>" as Opt
+class BoardDatabase <<static>>
+interface "I*Service" as IS
+class "*Service" as S
+
+Module <|-- DataAccessModule
+Module <|-- BusinessLogicModule
+P ..> AutofacServiceProviderFactory : UseServiceProviderFactory
+P ..> DataAccessModule : RegisterModule
+P ..> BusinessLogicModule : RegisterModule
+DataAccessModule ..> Opt : RegisterInstance (singleton)
+DataAccessModule ..> BoardContext : InstancePerLifetimeScope
+DataAccessModule ..> EfUnitOfWork : As IUnitOfWork,\nInstancePerLifetimeScope
+DataAccessModule ..> BoardDatabase : BuildCallback: EnsureCreated
+BusinessLogicModule ..> S : RegisterAssemblyTypes(*Service)\n.AsImplementedInterfaces()
+IUnitOfWork <|.. EfUnitOfWork
+IS <|.. S
+note bottom of DataAccessModule : Lifetime scope = один HTTP-запит:\nодин контекст і одна UoW на запит
+@enduml

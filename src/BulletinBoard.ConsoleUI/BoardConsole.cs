@@ -181,13 +181,13 @@ namespace BulletinBoard.ConsoleUI
         {
             ShowCategories();
             int? parentId = ConsoleInput.ReadOptionalInt("Номер батьківської категорії (Enter - нова рубрика): ");
-            CategoryModel category = _categories.Create(ConsoleInput.ReadText("Назва: "), parentId);
+            CategoryModel category = _categories.Create(_currentUser.Id, ConsoleInput.ReadText("Назва: "), parentId);
             Console.WriteLine("Категорію [" + category.Id + "] " + category.Name + " додано.");
         }
 
         private void CreateTag()
         {
-            TagModel tag = _tags.Create(ConsoleInput.ReadText("Назва тегу: "));
+            TagModel tag = _tags.Create(_currentUser.Id, ConsoleInput.ReadText("Назва тегу: "));
             Console.WriteLine("Тег [" + tag.Id + "] " + tag.Name + " додано.");
         }
 

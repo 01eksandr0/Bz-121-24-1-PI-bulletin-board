@@ -33,8 +33,9 @@ namespace BulletinBoard.BLL.Services
             return result;
         }
 
-        public CategoryModel Create(string name, int? parentId)
+        public CategoryModel Create(int userId, string name, int? parentId)
         {
+            UserGuard.EnsureRegistered(_unitOfWork, userId);
             string cleanName = (name ?? string.Empty).Trim();
             if (cleanName.Length == 0)
             {

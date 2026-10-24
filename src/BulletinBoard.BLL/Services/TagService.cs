@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BulletinBoard.BLL.Exceptions;
 using BulletinBoard.BLL.Interfaces;
+using BulletinBoard.BLL.Internal;
 using BulletinBoard.BLL.Mapping;
 using BulletinBoard.BLL.Models;
 using BulletinBoard.DAL.Abstractions.Entities;
@@ -28,8 +29,9 @@ namespace BulletinBoard.BLL.Services
             return Tags.GetAll().OrderBy(t => t.Name).Select(t => t.ToModel()).ToList();
         }
 
-        public TagModel Create(string name)
+        public TagModel Create(int userId, string name)
         {
+            UserGuard.EnsureRegistered(_unitOfWork, userId);
             string cleanName = (name ?? string.Empty).Trim().ToLowerInvariant();
             if (cleanName.Length == 0 || cleanName.Length > MaxNameLength)
             {

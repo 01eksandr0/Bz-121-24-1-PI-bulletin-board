@@ -44,6 +44,16 @@ namespace BulletinBoard.BLL.Services
             return user.ToModel();
         }
 
+        public UserModel GetById(int id)
+        {
+            User user = Users.GetById(id);
+            if (user == null)
+            {
+                throw new NotFoundException("Користувача", id);
+            }
+            return user.ToModel();
+        }
+
         public UserModel GetByEmail(string email)
         {
             string cleanEmail = NormalizeEmail(email);

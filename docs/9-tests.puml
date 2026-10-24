@@ -1,0 +1,43 @@
+@startuml
+skinparam defaultFontName DejaVu Sans
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+title BLL.Tests: модульні тести
+
+class AdServiceTests {
+  18 тестів
+}
+class CategoryServiceTests {
+  6 тестів
+}
+class UserAndTagServiceTests {
+  6 тестів
+}
+class InMemoryUnitOfWork {
+  + Users, Categories, Tags, Ads
+  + SaveCount : int
+}
+class "InMemoryRepository<TEntity>" as R
+class TestData <<static>> {
+  + Create() : InMemoryUnitOfWork
+}
+interface IUnitOfWork <<DAL.Abstractions>>
+interface "IRepository<TEntity>" as IR <<DAL.Abstractions>>
+class AdService <<BLL>>
+class CategoryService <<BLL>>
+class UserService <<BLL>>
+class TagService <<BLL>>
+
+IUnitOfWork <|.. InMemoryUnitOfWork
+IR <|.. R
+InMemoryUnitOfWork *-- "4" R
+TestData ..> InMemoryUnitOfWork
+AdServiceTests ..> AdService
+CategoryServiceTests ..> CategoryService
+UserAndTagServiceTests ..> UserService
+UserAndTagServiceTests ..> TagService
+AdServiceTests ..> TestData
+CategoryServiceTests ..> TestData
+UserAndTagServiceTests ..> TestData
+@enduml

@@ -7,6 +7,6 @@ namespace BulletinBoard.BLL.Interfaces
     {
         IReadOnlyList<CategoryModel> GetTree();
 
-        CategoryModel Create(string name, int? parentId);
+        CategoryModel Create(int userId, string name, int? parentId);
     }
 }

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BulletinBoard.BLL\BulletinBoard.BLL.csproj" />
+    <!-- лише для реєстрації модулів DI в Program.cs -->
+    <ProjectReference Include="..\BulletinBoard.Infrastructure\BulletinBoard.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

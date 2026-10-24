@@ -31,6 +31,10 @@ class EfUnitOfWork <<Unit of Work>> {
 class EfUnitOfWorkFactory <<static>> {
   + CreateSqlite(databasePath) : IUnitOfWork
 }
+class BoardDatabase <<static>> {
+  + CreateSqliteOptions(connectionString) : DbContextOptions<BoardContext>
+  + EnsureCreated(options)
+}
 class DemoDataSeeder <<static, internal>> {
   + Seed(context : BoardContext)
 }
@@ -45,6 +49,8 @@ EfUnitOfWork o-- BoardContext
 EfRepositoryProvider ..> EfRepo : створює і кешує
 EfRepo --> DbContext
 EfUnitOfWorkFactory ..> EfUnitOfWork : створює
-EfUnitOfWorkFactory ..> DemoDataSeeder : перший запуск
+EfUnitOfWorkFactory ..> BoardDatabase
+BoardDatabase ..> DemoDataSeeder : перший запуск
+BoardDatabase ..> BoardContext
 BoardContextDesignFactory ..> BoardContext : для dotnet-ef
 @enduml

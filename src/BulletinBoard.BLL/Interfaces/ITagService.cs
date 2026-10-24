@@ -7,6 +7,6 @@ namespace BulletinBoard.BLL.Interfaces
     {
         IReadOnlyList<TagModel> GetAll();
 
-        TagModel Create(string name);
+        TagModel Create(int userId, string name);
     }
 }

@@ -1,0 +1,35 @@
+@startuml
+skinparam defaultFontName DejaVu Sans
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+title DELETE /api/ads/2 від імені не автора
+actor Postman
+participant "ASP.NET Core\n(маршрутизація)" as R
+participant "RequireUser\n(фільтр)" as F
+participant "AdsController\n(PL)" as C
+participant "AdService\n(BLL)" as S
+participant "EfUnitOfWork /\nEfRepository<Ad>" as U
+database SQLite as DB
+participant "BusinessException\nFilter" as EF
+
+Postman -> R : DELETE /api/ads/2\nX-User-Id: 2
+R -> R : шаблон "api/ads/{id:int}" + HttpDelete\n→ AdsController.Delete
+note right of R : Autofac створює scope запиту\nі контролер з IAdService
+R -> F : OnActionExecuting
+alt немає X-User-Id
+  F --> Postman : 401 Unauthorized
+else заголовок є
+  F -> C : Delete(id: 2, userId: 2)
+  C -> S : Delete(2, 2)
+  S -> U : FirstOrDefault(a => a.Id == 2, includes)
+  U -> DB : SELECT
+  DB --> U : оголошення Олени (AuthorId = 1)
+  U --> S : Ad
+  S -> S : AuthorId != userId
+  S --> C : throw AccessDeniedException
+  C --> EF : виняток
+  EF --> Postman : 403 Forbidden\n{ title, detail: "Тільки автор може видалити оголошення." }
+end
+note over Postman, DB : Якщо X-User-Id: 1 (автор): Remove + SaveChanges → 204 No Content
+@enduml

@@ -7,6 +7,8 @@ namespace BulletinBoard.BLL.Interfaces
     {
         UserModel Register(string name, string email);
 
+        UserModel GetById(int id);
+
         UserModel GetByEmail(string email);
 
         IReadOnlyList<UserModel> GetAll();

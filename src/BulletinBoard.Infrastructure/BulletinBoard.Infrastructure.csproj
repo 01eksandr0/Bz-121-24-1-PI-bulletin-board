@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="8.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BulletinBoard.BLL\BulletinBoard.BLL.csproj" />
+    <ProjectReference Include="..\BulletinBoard.DAL.EF\BulletinBoard.DAL.EF.csproj" />
+  </ItemGroup>
+
+</Project>

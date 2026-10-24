@@ -38,10 +38,7 @@ namespace BulletinBoard.BLL.Services
 
         public AdModel Create(int authorId, AdInputModel input)
         {
-            if (_unitOfWork.Repository<User>().GetById(authorId) == null)
-            {
-                throw new NotFoundException("Користувача", authorId);
-            }
+            UserGuard.EnsureRegistered(_unitOfWork, authorId);
             List<Tag> tags = ValidateInputAndLoadTags(input);
 
             var ad = new Ad { AuthorId = authorId, CreatedAt = DateTime.Now, IsActive = true };
