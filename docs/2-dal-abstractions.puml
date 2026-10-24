@@ -1,0 +1,63 @@
+@startuml
+skinparam defaultFontName DejaVu Sans
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+title DAL.Abstractions: сутності і контракти
+
+interface IEntity {
+  + Id : int
+}
+class User {
+  + Id : int
+  + Name : string
+  + Email : string
+}
+class Category {
+  + Id : int
+  + Name : string
+  + ParentId : int?
+}
+class Tag {
+  + Id : int
+  + Name : string
+}
+class Ad {
+  + Id : int
+  + Title : string
+  + Description : string
+  + Price : decimal
+  + CreatedAt : DateTime
+  + IsActive : bool
+  + AuthorId : int
+  + Author : User
+  + CategoryId : int
+  + Category : Category
+  + Tags : ICollection<Tag>
+}
+interface "IRepository<TEntity>" as IRepo <<generic>> {
+  + GetById(id : int) : TEntity
+  + GetAll(includes) : IReadOnlyList<TEntity>
+  + Find(predicate, includes) : IReadOnlyList<TEntity>
+  + FirstOrDefault(predicate, includes) : TEntity
+  + Any(predicate) : bool
+  + Add(entity : TEntity)
+  + Update(entity : TEntity)
+  + Remove(entity : TEntity)
+}
+interface IUnitOfWork <<Unit of Work>> {
+  + Repository<TEntity>() : IRepository<TEntity>
+  + SaveChanges()
+  + Dispose()
+}
+IEntity <|.. User
+IEntity <|.. Category
+IEntity <|.. Tag
+IEntity <|.. Ad
+Ad "*" --> "1" User : Author
+Ad "*" --> "1" Category : Category
+Ad "*" --> "*" Tag : Tags
+Category "*" --> "0..1" Category : ParentId
+IUnitOfWork ..> IRepo : надає
+IRepo ..> IEntity : TEntity : IEntity
+@enduml

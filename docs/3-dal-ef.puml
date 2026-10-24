@@ -1,0 +1,50 @@
+@startuml
+skinparam defaultFontName DejaVu Sans
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+title DAL.EF: реалізація на Entity Framework Core
+
+interface "IRepository<TEntity>" as IRepo
+interface IUnitOfWork
+class DbContext <<EF Core>>
+class BoardContext {
+  + Users : DbSet<User>
+  + Categories : DbSet<Category>
+  + Tags : DbSet<Tag>
+  + Ads : DbSet<Ad>
+  # OnModelCreating(modelBuilder)
+}
+class "EfRepository<TEntity>" as EfRepo <<Repository>> {
+  - _context : DbContext
+  - _set : DbSet<TEntity>
+  - WithIncludes(includes) : IQueryable<TEntity>
+}
+class EfRepositoryProvider {
+  - _repositories : Dictionary<Type, object>
+  + Get<TEntity>() : IRepository<TEntity>
+}
+class EfUnitOfWork <<Unit of Work>> {
+  - _context : BoardContext
+  - _repositories : EfRepositoryProvider
+}
+class EfUnitOfWorkFactory <<static>> {
+  + CreateSqlite(databasePath) : IUnitOfWork
+}
+class DemoDataSeeder <<static, internal>> {
+  + Seed(context : BoardContext)
+}
+class BoardContextDesignFactory {
+  + CreateDbContext(args) : BoardContext
+}
+DbContext <|-- BoardContext
+IRepo <|.. EfRepo
+IUnitOfWork <|.. EfUnitOfWork
+EfUnitOfWork *-- EfRepositoryProvider
+EfUnitOfWork o-- BoardContext
+EfRepositoryProvider ..> EfRepo : створює і кешує
+EfRepo --> DbContext
+EfUnitOfWorkFactory ..> EfUnitOfWork : створює
+EfUnitOfWorkFactory ..> DemoDataSeeder : перший запуск
+BoardContextDesignFactory ..> BoardContext : для dotnet-ef
+@enduml

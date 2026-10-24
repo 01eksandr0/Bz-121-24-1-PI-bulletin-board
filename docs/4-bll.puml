@@ -1,0 +1,96 @@
+@startuml
+skinparam defaultFontName DejaVu Sans
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+title BLL: бізнес-логіка
+
+package Interfaces {
+  interface IUserService {
+  + Register(name, email) : UserModel
+  + GetByEmail(email) : UserModel
+  + GetAll() : IReadOnlyList<UserModel>
+}
+  interface ICategoryService {
+  + GetTree() : IReadOnlyList<CategoryModel>
+  + Create(name, parentId) : CategoryModel
+}
+  interface ITagService {
+  + GetAll() : IReadOnlyList<TagModel>
+  + Create(name) : TagModel
+}
+  interface IAdService {
+    + Create(authorId, input) : AdModel
+    + Update(adId, userId, input) : AdModel
+    + GetById(adId, viewerId) : AdModel
+    + Search(filter) : IReadOnlyList<AdModel>
+    + GetByAuthor(authorId) : IReadOnlyList<AdModel>
+    + Deactivate(adId, userId)
+    + Activate(adId, userId)
+    + Delete(adId, userId)
+  }
+}
+package Services {
+  class UserService
+  class CategoryService {
+  + MaxLevels = 3
+}
+  class TagService
+  class AdService {
+  + MaxTags = 5
+  - GetOwnedAd(adId, userId, action) : Ad
+  - ValidateInputAndLoadTags(input) : List<Tag>
+}
+}
+package Models {
+  class UserModel
+  class CategoryModel {
+  + Level : int
+}
+  class TagModel
+  class AdModel {
+  + AuthorName : string
+  + CategoryName : string
+  + Tags : IReadOnlyList<string>
+}
+  class AdInputModel
+  class AdSearchFilter
+}
+package Mapping {
+  class ModelMapper <<static>> {
+  + ToModel(entity)
+  + ApplyTo(input, ad, tags)
+}
+}
+package Internal {
+  class CategoryHierarchy {
+  + GetLevel(id)
+  + GetChildren(parentId)
+  + GetSelfAndDescendantIds(id)
+}
+}
+package Exceptions {
+  class BusinessException
+  class NotFoundException
+  class AccessDeniedException
+  class ValidationFailedException
+}
+interface IUnitOfWork <<DAL.Abstractions>>
+
+IUserService <|.. UserService
+ICategoryService <|.. CategoryService
+ITagService <|.. TagService
+IAdService <|.. AdService
+UserService --> IUnitOfWork
+CategoryService --> IUnitOfWork
+TagService --> IUnitOfWork
+AdService --> IUnitOfWork
+CategoryService ..> CategoryHierarchy
+AdService ..> CategoryHierarchy
+Services ..> ModelMapper
+ModelMapper ..> Models
+BusinessException <|-- NotFoundException
+BusinessException <|-- AccessDeniedException
+BusinessException <|-- ValidationFailedException
+Services ..> Exceptions : кидає
+@enduml

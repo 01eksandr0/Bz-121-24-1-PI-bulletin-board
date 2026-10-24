@@ -1,0 +1,57 @@
+@startuml
+skinparam defaultFontName DejaVu Sans
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+title ConsoleUI: рівень представлення
+
+class Program <<static>> {
+  + Main()
+}
+class BoardConsole {
+  - _users : IUserService
+  - _categories : ICategoryService
+  - _tags : ITagService
+  - _ads : IAdService
+  - _menu : List<MenuItem>
+  - _currentUser : UserModel
+  + Run()
+  - Execute(action)
+}
+class MenuItem {
+  + Key : string
+  + Title : string
+  + RequiresLogin : bool
+  + Action : Action
+}
+class ConsoleInput <<static>> {
+  + ReadText()
+  + ReadInt()
+  + ReadOptionalInt()
+  + ReadDecimal()
+  + ReadIntList()
+  + Confirm()
+}
+class ConsoleView <<static>> {
+  + PrintAdShort()
+  + PrintAdFull()
+  + PrintAds()
+  + PrintCategories()
+  + PrintTags()
+}
+interface IUserService <<BLL>>
+interface ICategoryService <<BLL>>
+interface ITagService <<BLL>>
+interface IAdService <<BLL>>
+class EfUnitOfWorkFactory <<DAL.EF>>
+
+Program ..> BoardConsole : створює
+Program ..> EfUnitOfWorkFactory : CreateSqlite()
+BoardConsole *-- "*" MenuItem
+BoardConsole ..> ConsoleInput
+BoardConsole ..> ConsoleView
+BoardConsole --> IUserService
+BoardConsole --> ICategoryService
+BoardConsole --> ITagService
+BoardConsole --> IAdService
+@enduml

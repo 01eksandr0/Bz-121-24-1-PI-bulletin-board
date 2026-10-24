@@ -1,0 +1,36 @@
+@startuml
+skinparam defaultFontName DejaVu Sans
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+title Деактивація оголошення (тільки автор)
+actor Користувач
+participant BoardConsole as UI
+participant "AdService\n(BLL)" as S
+participant "IUnitOfWork\n(EfUnitOfWork)" as U
+participant "IRepository<Ad>\n(EfRepository)" as R
+database SQLite as DB
+
+Користувач -> UI : пункт 10, номер оголошення
+UI -> S : Deactivate(adId, userId)
+S -> U : Repository<Ad>()
+U --> S : репозиторій
+S -> R : FirstOrDefault(a => a.Id == adId, includes)
+R -> DB : SELECT ... JOIN
+DB --> R : рядок
+R --> S : Ad
+alt ad == null
+  S --> UI : NotFoundException
+else ad.AuthorId != userId
+  S --> UI : AccessDeniedException
+else вже неактивне
+  S --> UI : ValidationFailedException
+else все гаразд
+  S -> S : ad.IsActive = false
+  S -> R : Update(ad)
+  S -> U : SaveChanges()
+  U -> DB : UPDATE Ads SET IsActive = 0
+  S --> UI : (успіх)
+end
+UI --> Користувач : повідомлення
+@enduml
